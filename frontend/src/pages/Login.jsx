@@ -61,9 +61,6 @@ export default function Login() {
           <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--text3)' }}>
             No account? <Link to="/register" style={{ color: 'var(--accent)' }}>Join DealBox</Link>
           </p>
-          <div style={{ marginTop: 20, padding: '12px 16px', background: 'var(--bg3)', borderRadius: 8, fontSize: 12, color: 'var(--text3)' }}>
-            <strong style={{ color: 'var(--text2)' }}>Admin demo:</strong> admin@dealbox.com / admin123
-          </div>
         </div>
       </div>
     </div>
