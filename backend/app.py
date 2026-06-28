@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from database import db
@@ -41,6 +41,17 @@ def create_app():
     app.register_blueprint(buybox_bp,      url_prefix='/api/buybox')
     app.register_blueprint(properties_bp,  url_prefix='/api/properties')
     app.register_blueprint(admin_bp,       url_prefix='/api/admin')
+
+    # ── Serve React frontend (production) ──────────────────────────────────────
+    frontend = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+    if os.path.isdir(frontend):
+        @app.route('/', defaults={'path': ''})
+        @app.route('/<path:path>')
+        def serve_frontend(path):
+            full = os.path.join(frontend, path)
+            if path and os.path.isfile(full):
+                return send_from_directory(frontend, path)
+            return send_from_directory(frontend, 'index.html')
 
     with app.app_context():
         from models.invite_code import InviteCode  # ensure table is created

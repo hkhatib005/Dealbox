@@ -5,12 +5,11 @@ databases:
     plan: free
 
 services:
-  # ── Flask API ──────────────────────────────────────────────────────────────
   - type: web
-    name: dealbox-api
+    name: dealbox
     runtime: python
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && cd ../frontend && npm install && npm run build
     startCommand: python -m gunicorn "app:create_app()" --bind "0.0.0.0:$PORT" --workers 2 --timeout 120
     plan: free
     envVars:
@@ -20,23 +19,5 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
-      - key: ALLOWED_ORIGINS
-        value: https://dealbox-app.onrender.com
       - key: PYTHON_VERSION
         value: 3.11.0
-
-  # ── React Static Site ──────────────────────────────────────────────────────
-  - type: web
-    name: dealbox-app
-    runtime: static
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    plan: free
-    envVars:
-      - key: VITE_API_URL
-        value: https://dealbox-api.onrender.com
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html

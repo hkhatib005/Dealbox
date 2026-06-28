@@ -1,9 +1,7 @@
 import axios from 'axios'
 
-// In production VITE_API_URL points to the deployed backend (e.g. https://dealbox-api.onrender.com)
-// In dev the Vite proxy handles /api -> localhost:5000
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api'
+  baseURL: '/api'
 })
 
 api.interceptors.request.use(config => {
