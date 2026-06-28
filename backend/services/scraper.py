@@ -28,7 +28,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Foreclosure', 'owner_name': 'Bank of America REO',
             'description': 'Foreclosed 3/2 in East Dallas. Needs full rehab. ARV ~$220k.',
-            'lat': 32.7767, 'lng': -96.7970, 'source': 'County Records',
+            'lat': 32.7767, 'lng': -96.7970, 'source': 'Dallas CAD',
+            'source_url': 'https://www.dallascad.org/SearchAddr.aspx',
             'arv_estimate': 220000
         },
         {
@@ -37,7 +38,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Fair',
             'deal_type': 'Probate', 'owner_name': 'Estate of John Miller',
             'description': 'Probate sale. 4/2.5 in Montrose area. Owner passed 3 months ago, heirs motivated to sell fast.',
-            'lat': 29.7604, 'lng': -95.3698, 'source': 'Probate Court',
+            'lat': 29.7604, 'lng': -95.3698, 'source': 'Harris County Probate Court',
+            'source_url': 'https://probate.harriscountytx.gov/',
             'arv_estimate': 295000
         },
         {
@@ -46,7 +48,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Tax Delinquent', 'owner_name': 'Rodriguez, Maria',
             'description': '3 years delinquent on taxes. Absentee owner lives in California. Foundation issues noted.',
-            'lat': 29.4241, 'lng': -98.4936, 'source': 'Tax Records',
+            'lat': 29.4241, 'lng': -98.4936, 'source': 'Bexar County Tax Office',
+            'source_url': 'https://www.bexar.org/743/Delinquent-Tax-Office',
             'arv_estimate': 145000
         },
         {
@@ -55,7 +58,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Fair',
             'deal_type': 'Absentee Owner', 'owner_name': 'Thompson, Robert',
             'description': 'Absentee owner in Seattle. Tenant-occupied, lease ends next month. Great South Austin location.',
-            'lat': 30.2672, 'lng': -97.7431, 'source': 'Assessor Records',
+            'lat': 30.2672, 'lng': -97.7431, 'source': 'Travis CAD',
+            'source_url': 'https://www.traviscad.org/property-search/',
             'arv_estimate': 430000
         },
         # Florida
@@ -65,7 +69,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Foreclosure', 'owner_name': 'Wells Fargo REO',
             'description': 'Bank foreclosure in South Tampa. Cosmetic updates needed. HOA community.',
-            'lat': 27.9506, 'lng': -82.4572, 'source': 'HUD HomeSale',
+            'lat': 27.9506, 'lng': -82.4572, 'source': 'HUD Home Store',
+            'source_url': 'https://www.hudhomestore.gov/Home/Index.aspx',
             'arv_estimate': 310000
         },
         {
@@ -74,7 +79,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Fair',
             'deal_type': 'Probate', 'owner_name': 'Estate of Patricia Chen',
             'description': 'Inherited property. Children live out of state, want quick sale. Solid bones, dated finishes.',
-            'lat': 28.5383, 'lng': -81.3792, 'source': 'Probate Court',
+            'lat': 28.5383, 'lng': -81.3792, 'source': 'Orange County Clerk of Courts',
+            'source_url': 'https://myeclerk.myorangeclerk.com/',
             'arv_estimate': 255000
         },
         {
@@ -83,7 +89,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Tax Delinquent', 'owner_name': 'Johnson, Marcus',
             'description': 'Wynwood adjacent. 4 years tax delinquent. Investor-owned, abandoned. Major value-add opportunity.',
-            'lat': 25.7617, 'lng': -80.1918, 'source': 'Tax Records',
+            'lat': 25.7617, 'lng': -80.1918, 'source': 'Miami-Dade Tax Collector',
+            'source_url': 'https://www.miamidade.gov/Apps/PA/propertysearch/',
             'arv_estimate': 620000
         },
         # Georgia
@@ -93,8 +100,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Foreclosure', 'owner_name': 'Fannie Mae HomePath',
             'description': 'HomePath listing in Buckhead. Light rehab needed. Strong rental market.',
-            'lat': 33.7490, 'lng': -84.3880, 'source': 'Fannie Mae',
-            'source_url': 'https://www.homepath.com',
+            'lat': 33.7490, 'lng': -84.3880, 'source': 'Fannie Mae HomePath',
+            'source_url': 'https://www.homepath.com/listings.html',
             'arv_estimate': 340000
         },
         {
@@ -103,7 +110,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Absentee Owner', 'owner_name': 'Williams, Sandra',
             'description': 'Historic Old Fourth Ward. Absentee owner hasn\'t maintained property in years. 2/1 with potential.',
-            'lat': 33.7548, 'lng': -84.3763, 'source': 'Assessor Records',
+            'lat': 33.7548, 'lng': -84.3763, 'source': 'Fulton County Assessor',
+            'source_url': 'https://www.fultonassessor.org/residential-property-search/',
             'arv_estimate': 240000
         },
         # North Carolina
@@ -113,7 +121,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Fair',
             'deal_type': 'Probate', 'owner_name': 'Estate of George Davis',
             'description': 'Plaza Midwood estate sale. Inherited by 4 siblings who can\'t agree. Priced for quick liquidation.',
-            'lat': 35.2271, 'lng': -80.8431, 'source': 'Probate Court',
+            'lat': 35.2271, 'lng': -80.8431, 'source': 'Mecklenburg County Clerk of Court',
+            'source_url': 'https://www.nccourts.gov/locations/mecklenburg-county-courthouse',
             'arv_estimate': 265000
         },
         # Ohio
@@ -123,7 +132,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Tax Delinquent', 'owner_name': 'Brown, James',
             'description': 'Tax delinquent 5 years. Low-income area but strong rental demand. Needs complete renovation.',
-            'lat': 41.4993, 'lng': -81.6944, 'source': 'County Tax Records',
+            'lat': 41.4993, 'lng': -81.6944, 'source': 'Cuyahoga County Fiscal Office',
+            'source_url': 'https://fiscalofficer.cuyahogacounty.gov/RealEstate/Home.aspx',
             'arv_estimate': 120000
         },
         # Arizona
@@ -133,7 +143,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Fair',
             'deal_type': 'Foreclosure', 'owner_name': 'Chase REO',
             'description': 'Bank-owned 4/2 in North Phoenix. Pool, needs work. Strong rental market nearby.',
-            'lat': 33.5722, 'lng': -112.0892, 'source': 'HUD HomeSale',
+            'lat': 33.5722, 'lng': -112.0892, 'source': 'HUD Home Store',
+            'source_url': 'https://www.hudhomestore.gov/Home/Index.aspx',
             'arv_estimate': 385000
         },
         # Tennessee
@@ -143,7 +154,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Fair',
             'deal_type': 'Absentee Owner', 'owner_name': 'Patel, Raj',
             'description': 'Gulch area. Absentee investor from NYC. Tenant just left. Needs updates to maximize rent.',
-            'lat': 36.1627, 'lng': -86.7816, 'source': 'Assessor Records',
+            'lat': 36.1627, 'lng': -86.7816, 'source': 'Davidson County Assessor',
+            'source_url': 'https://www.padctn.org/prc/',
             'arv_estimate': 450000
         },
         # Indiana
@@ -153,7 +165,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Probate', 'owner_name': 'Estate of Dorothy Wilson',
             'description': 'Meridian Kessler estate sale. 3/2 bungalow, original everything. Amazing bones, ready for full flip.',
-            'lat': 39.7684, 'lng': -86.1581, 'source': 'Probate Court',
+            'lat': 39.7684, 'lng': -86.1581, 'source': 'Marion County Probate Court',
+            'source_url': 'https://www.indy.gov/agency/marion-county-probate-court',
             'arv_estimate': 185000
         },
         # Missouri
@@ -163,7 +176,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Tax Delinquent', 'owner_name': 'Jackson, Denise',
             'description': 'Delmar Loop adjacent. Tax delinquent 2 years. Boarded up but structurally sound per 2023 inspection.',
-            'lat': 38.6270, 'lng': -90.1994, 'source': 'County Tax Records',
+            'lat': 38.6270, 'lng': -90.1994, 'source': 'St. Louis County Revenue Dept',
+            'source_url': 'https://revenue.stlouiscountymo.gov/Collections/Tax-Delinquencies/',
             'arv_estimate': 145000
         },
         # Illinois
@@ -173,7 +187,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Fair',
             'deal_type': 'Foreclosure', 'owner_name': 'Citibank REO',
             'description': 'River North bank foreclosure. 3/2 townhome style. Cosmetic only, priced below market.',
-            'lat': 41.8781, 'lng': -87.6298, 'source': 'HUD HomeSale',
+            'lat': 41.8781, 'lng': -87.6298, 'source': 'HUD Home Store',
+            'source_url': 'https://www.hudhomestore.gov/Home/Index.aspx',
             'arv_estimate': 380000
         },
         # Nevada
@@ -183,7 +198,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Absentee Owner', 'owner_name': 'Garcia, Luis',
             'description': 'Summerlin area. Owner in Florida, hasn\'t visited in 2 years. Pool, large lot, needs full renovation.',
-            'lat': 36.1699, 'lng': -115.1398, 'source': 'Assessor Records',
+            'lat': 36.1699, 'lng': -115.1398, 'source': 'Clark County Assessor',
+            'source_url': 'https://assessor.clarkcountynv.gov/AssessorParcelDetail/tabid/119/Default.aspx',
             'arv_estimate': 410000
         },
         # Colorado
@@ -193,7 +209,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Fair',
             'deal_type': 'Probate', 'owner_name': 'Estate of Frank Martinez',
             'description': 'RiNo estate sale. Original 1920s craftsman. Heirs in California want quick close. Massive upside.',
-            'lat': 39.7392, 'lng': -104.9903, 'source': 'Probate Court',
+            'lat': 39.7392, 'lng': -104.9903, 'source': 'Denver Probate Court',
+            'source_url': 'https://www.courts.state.co.us/Courts/Denver/Probate/',
             'arv_estimate': 580000
         },
         # Virginia
@@ -203,7 +220,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Distressed',
             'deal_type': 'Tax Delinquent', 'owner_name': 'Thompson, Henry',
             'description': 'Museum District. 3 years delinquent. Vacant for 18 months. Investor previously had it under contract.',
-            'lat': 37.5407, 'lng': -77.4360, 'source': 'County Tax Records',
+            'lat': 37.5407, 'lng': -77.4360, 'source': 'City of Richmond Finance Dept',
+            'source_url': 'https://www.richmondgov.com/Finance/TaxDelinquency.aspx',
             'arv_estimate': 285000
         },
         # Washington
@@ -213,8 +231,8 @@ def seed_demo_properties():
             'property_type': 'Single Family', 'condition': 'Fair',
             'deal_type': 'Foreclosure', 'owner_name': 'US Bank REO',
             'description': 'Columbia City bank-owned. 4/2.5 with bonus room. Light rehab in hot South Seattle market.',
-            'lat': 47.6062, 'lng': -122.3321, 'source': 'Fannie Mae',
-            'source_url': 'https://www.homepath.com',
+            'lat': 47.6062, 'lng': -122.3321, 'source': 'Fannie Mae HomePath',
+            'source_url': 'https://www.homepath.com/listings.html',
             'arv_estimate': 695000
         },
     ]
@@ -230,6 +248,10 @@ def seed_demo_properties():
             prop = Property(**data)
             db.session.add(prop)
             added += 1
+        else:
+            # Patch source fields on existing records
+            existing.source = data.get('source', existing.source)
+            existing.source_url = data.get('source_url', existing.source_url)
 
     db.session.commit()
     print(f"✅ Seeded {added} demo properties")

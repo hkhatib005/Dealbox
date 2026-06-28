@@ -174,13 +174,17 @@ function PropertyCard({ property: p, saved, onSave }) {
         )}
 
         {/* Source */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 11, color: 'var(--text3)' }}>Source: {p.source}</span>
-          {p.source_url && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text3)' }}>
+          <ExternalLink size={11}/>
+          {p.source_url ? (
             <a href={p.source_url} target="_blank" rel="noreferrer"
-              className="btn btn-ghost btn-sm" style={{ fontSize: 11 }}>
-              <ExternalLink size={11}/> View Source
+              style={{ color: 'var(--accent)', textDecoration: 'none' }}
+              onMouseOver={e => e.target.style.textDecoration = 'underline'}
+              onMouseOut={e => e.target.style.textDecoration = 'none'}>
+              {p.source}
             </a>
+          ) : (
+            <span>{p.source}</span>
           )}
         </div>
       </div>
