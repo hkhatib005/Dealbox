@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import api from '../api'
-import { Users, Package, Home, TrendingUp, Plus, X, Trash2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
+import { Users, Package, Home, TrendingUp, Plus, X, Trash2, RefreshCw, ChevronDown, ChevronUp, Clock, CheckCircle, XCircle, Key, UserX } from 'lucide-react'
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState('overview')
   const [stats, setStats] = useState(null)
   const [users, setUsers] = useState([])
+  const [pending, setPending] = useState([])
   const [buyboxes, setBuyboxes] = useState([])
   const [properties, setProperties] = useState([])
+  const [inviteCodes, setInviteCodes] = useState([])
   const [showAddProp, setShowAddProp] = useState(false)
   const [toast, setToast] = useState(null)
   const [expandedUser, setExpandedUser] = useState(null)
@@ -18,13 +20,16 @@ export default function AdminDashboard() {
 
   const loadAll = async () => {
     try {
-      const [s, u, b, p] = await Promise.all([
+      const [s, u, pend, b, p, codes] = await Promise.all([
         api.get('/admin/stats'),
         api.get('/admin/users'),
+        api.get('/admin/users/pending'),
         api.get('/admin/buyboxes'),
         api.get('/admin/properties'),
+        api.get('/admin/invite-codes'),
       ])
-      setStats(s.data); setUsers(u.data); setBuyboxes(b.data); setProperties(p.data)
+      setStats(s.data); setUsers(u.data); setPending(pend.data)
+      setBuyboxes(b.data); setProperties(p.data); setInviteCodes(codes.data)
     } catch(e) { console.error(e) }
   }
 
@@ -42,9 +47,57 @@ export default function AdminDashboard() {
     setProperties(p => p.filter(x => x.id !== id))
   }
 
+  const handleApprove = async (userId) => {
+    try {
+      const res = await api.post(`/admin/users/${userId}/approve`)
+      showToast(res.data.message)
+      setPending(p => p.filter(u => u.id !== userId))
+      loadAll()
+    } catch(e) { showToast('Failed to approve', 'error') }
+  }
+
+  const handleReject = async (userId, name) => {
+    if (!confirm(`Remove ${name}'s account? This cannot be undone.`)) return
+    try {
+      await api.delete(`/admin/users/${userId}`)
+      showToast('User removed')
+      setPending(p => p.filter(u => u.id !== userId))
+      loadAll()
+    } catch(e) { showToast('Failed to remove', 'error') }
+  }
+
+  const handleSuspend = async (userId, name, isApproved) => {
+    const action = isApproved ? 'suspend' : 'restore'
+    if (isApproved && !confirm(`Suspend ${name}? They will lose platform access.`)) return
+    try {
+      const endpoint = isApproved ? `/admin/users/${userId}/suspend` : `/admin/users/${userId}/approve`
+      const res = await api.post(endpoint)
+      showToast(res.data.message)
+      loadAll()
+    } catch(e) { showToast(`Failed to ${action}`, 'error') }
+  }
+
+  const handleGenerateCode = async () => {
+    try {
+      const res = await api.post('/admin/invite-codes')
+      showToast(`Code generated: ${res.data.code}`)
+      setInviteCodes(c => [res.data, ...c])
+    } catch(e) { showToast('Failed to generate', 'error') }
+  }
+
+  const handleDeactivateCode = async (codeId) => {
+    try {
+      await api.delete(`/admin/invite-codes/${codeId}`)
+      showToast('Code deactivated')
+      setInviteCodes(c => c.map(x => x.id === codeId ? {...x, active: false} : x))
+    } catch(e) { showToast('Failed', 'error') }
+  }
+
   const TABS = [
     { id: 'overview', label: 'Overview', icon: TrendingUp },
-    { id: 'users', label: `Users (${users.length})`, icon: Users },
+    { id: 'pending', label: `Pending (${pending.length})`, icon: Clock, badge: pending.length > 0 },
+    { id: 'users', label: `Users (${users.filter(u=>u.role!=='admin').length})`, icon: Users },
+    { id: 'invites', label: 'Invite Codes', icon: Key },
     { id: 'buyboxes', label: `Buy Boxes (${buyboxes.length})`, icon: Package },
     { id: 'properties', label: `Properties (${properties.length})`, icon: Home },
   ]
@@ -63,8 +116,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: '1px solid var(--border)', paddingBottom: 0 }}>
-        {TABS.map(({ id, label, icon: Icon }) => (
+      <div style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: '1px solid var(--border)', paddingBottom: 0, flexWrap: 'wrap' }}>
+        {TABS.map(({ id, label, icon: Icon, badge }) => (
           <button key={id} onClick={() => setTab(id)}
             className="btn btn-ghost btn-sm"
             style={{
@@ -72,9 +125,13 @@ export default function AdminDashboard() {
               borderBottom: tab === id ? '2px solid var(--accent)' : '2px solid transparent',
               color: tab === id ? 'var(--accent)' : 'var(--text2)',
               background: tab === id ? 'rgba(59,130,246,0.08)' : 'transparent',
-              display: 'flex', alignItems: 'center', gap: 6
+              display: 'flex', alignItems: 'center', gap: 6, position: 'relative'
             }}>
             <Icon size={14}/> {label}
+            {badge && <span style={{
+              width: 8, height: 8, borderRadius: '50%', background: '#f87171',
+              position: 'absolute', top: 6, right: 6
+            }}/>}
           </button>
         ))}
       </div>
@@ -84,10 +141,26 @@ export default function AdminDashboard() {
         <div>
           <div className="stat-grid">
             <div className="stat-card"><div className="label">Wholesalers</div><div className="value" style={{color:'#60a5fa'}}>{stats.total_users}</div></div>
+            <div className="stat-card" style={stats.pending_approvals > 0 ? {borderColor:'rgba(251,191,36,0.4)'} : {}}>
+              <div className="label">Pending Approval</div>
+              <div className="value" style={{color: stats.pending_approvals > 0 ? '#fbbf24' : '#34d399'}}>{stats.pending_approvals}</div>
+            </div>
             <div className="stat-card"><div className="label">Buy Boxes</div><div className="value" style={{color:'#34d399'}}>{stats.total_buyboxes}</div></div>
             <div className="stat-card"><div className="label">Properties</div><div className="value" style={{color:'#fbbf24'}}>{stats.total_properties}</div></div>
             <div className="stat-card"><div className="label">Total Matches</div><div className="value" style={{color:'#a78bfa'}}>{stats.total_matches}</div></div>
           </div>
+
+          {stats.pending_approvals > 0 && (
+            <div className="card" style={{ borderColor: 'rgba(251,191,36,0.3)', background: 'rgba(251,191,36,0.05)', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Clock size={18} color="#fbbf24" />
+                  <span style={{ fontWeight: 600 }}>{stats.pending_approvals} user{stats.pending_approvals > 1 ? 's' : ''} waiting for approval</span>
+                </div>
+                <button className="btn btn-primary btn-sm" onClick={() => setTab('pending')}>Review Now</button>
+              </div>
+            </div>
+          )}
 
           <div className="card">
             <h3 style={{ marginBottom: 16, fontSize: 16 }}>Platform Health</h3>
@@ -111,6 +184,55 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Pending Approvals */}
+      {tab === 'pending' && (
+        <div>
+          <div style={{ marginBottom: 20 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Pending Applications</h2>
+            <p style={{ color: 'var(--text3)', fontSize: 13 }}>Review and approve or reject new wholesaler signups</p>
+          </div>
+
+          {pending.length === 0 ? (
+            <div className="card" style={{ textAlign: 'center', padding: 48 }}>
+              <CheckCircle size={40} color="#34d399" style={{ margin: '0 auto 16px' }} />
+              <div style={{ fontWeight: 600, marginBottom: 6 }}>All caught up!</div>
+              <div style={{ color: 'var(--text3)', fontSize: 14 }}>No pending applications right now.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {pending.map(user => (
+                <div key={user.id} className="card" style={{ padding: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: 700, fontSize: 18, flexShrink: 0
+                    }}>{user.name?.[0]?.toUpperCase()}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, marginBottom: 2 }}>{user.name}</div>
+                      <div style={{ fontSize: 13, color: 'var(--text3)' }}>{user.email}</div>
+                      {user.phone && <div style={{ fontSize: 12, color: 'var(--text3)' }}>{user.phone}</div>}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text3)', marginRight: 8 }}>
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button className="btn btn-success btn-sm" onClick={() => handleApprove(user.id)} style={{ gap: 6 }}>
+                        <CheckCircle size={14}/> Approve
+                      </button>
+                      <button className="btn btn-danger btn-sm" onClick={() => handleReject(user.id, user.name)} style={{ gap: 6 }}>
+                        <XCircle size={14}/> Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Users */}
       {tab === 'users' && (
         <div>
@@ -121,22 +243,37 @@ export default function AdminDashboard() {
                   onClick={() => setExpandedUser(expandedUser === user.id ? null : user.id)}>
                   <div style={{
                     width: 40, height: 40, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+                    background: user.approved
+                      ? 'linear-gradient(135deg, #3b82f6, #8b5cf6)'
+                      : 'linear-gradient(135deg, #6b7280, #4b5563)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontWeight: 700, flexShrink: 0
                   }}>{user.name?.[0]?.toUpperCase()}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600 }}>{user.name}</div>
+                    <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {user.name}
+                      <span className={`badge ${user.approved ? 'badge-green' : 'badge-red'}`} style={{fontSize:10}}>
+                        {user.approved ? 'Active' : 'Suspended'}
+                      </span>
+                    </div>
                     <div style={{ fontSize: 13, color: 'var(--text3)' }}>{user.email} · {user.phone || 'No phone'}</div>
                   </div>
                   <div style={{ textAlign: 'right', marginRight: 12 }}>
                     <div style={{ fontSize: 20, fontWeight: 700, color: '#60a5fa' }}>{user.buybox_count}</div>
                     <div style={{ fontSize: 11, color: 'var(--text3)' }}>buy boxes</div>
                   </div>
-                  <div style={{ textAlign: 'right', marginRight: 12 }}>
+                  <div style={{ textAlign: 'right', marginRight: 8 }}>
                     <div style={{ fontSize: 20, fontWeight: 700, color: '#34d399' }}>{user.total_matches}</div>
                     <div style={{ fontSize: 11, color: 'var(--text3)' }}>matches</div>
                   </div>
+                  <button
+                    className={`btn btn-sm ${user.approved ? 'btn-danger' : 'btn-success'}`}
+                    style={{ gap: 4, marginRight: 4 }}
+                    onClick={e => { e.stopPropagation(); handleSuspend(user.id, user.name, user.approved) }}
+                  >
+                    <UserX size={13}/>
+                    {user.approved ? 'Suspend' : 'Restore'}
+                  </button>
                   {expandedUser === user.id ? <ChevronUp size={16} color="var(--text3)"/> : <ChevronDown size={16} color="var(--text3)"/>}
                 </div>
                 {expandedUser === user.id && user.buyboxes?.length > 0 && (
@@ -157,6 +294,64 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Invite Codes */}
+      {tab === 'invites' && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div>
+              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Invite Codes</h2>
+              <p style={{ color: 'var(--text3)', fontSize: 13 }}>Generate codes for instant access — each code can only be used once</p>
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={handleGenerateCode} style={{ gap: 6 }}>
+              <Key size={14}/> Generate Code
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {inviteCodes.length === 0 ? (
+              <div className="card" style={{ textAlign: 'center', padding: 40 }}>
+                <Key size={32} color="var(--text3)" style={{ margin: '0 auto 12px' }} />
+                <div style={{ color: 'var(--text3)', fontSize: 14 }}>No invite codes yet. Generate one above.</div>
+              </div>
+            ) : inviteCodes.map(code => (
+              <div key={code.id} className="card" style={{
+                padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 16,
+                opacity: code.active ? 1 : 0.5
+              }}>
+                <div style={{
+                  fontFamily: 'monospace', fontSize: 18, fontWeight: 700, letterSpacing: '0.12em',
+                  color: code.active ? '#60a5fa' : 'var(--text3)',
+                  background: 'var(--bg3)', padding: '6px 12px', borderRadius: 6
+                }}>{code.code}</div>
+                <div style={{ flex: 1 }}>
+                  {code.used_by ? (
+                    <div style={{ fontSize: 13, color: 'var(--text3)' }}>
+                      Used by <strong style={{ color: 'var(--text2)' }}>{code.used_by}</strong>
+                      {code.used_at && ` on ${new Date(code.used_at).toLocaleDateString()}`}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 13, color: code.active ? '#34d399' : 'var(--text3)' }}>
+                      {code.active ? 'Available' : 'Deactivated'}
+                    </div>
+                  )}
+                  <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 2 }}>
+                    Created {new Date(code.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+                <span className={`badge ${code.used_by ? 'badge-blue' : code.active ? 'badge-green' : 'badge-red'}`}>
+                  {code.used_by ? 'Used' : code.active ? 'Active' : 'Disabled'}
+                </span>
+                {code.active && !code.used_by && (
+                  <button className="btn btn-ghost btn-sm" onClick={() => handleDeactivateCode(code.id)} title="Deactivate">
+                    <Trash2 size={13}/>
+                  </button>
                 )}
               </div>
             ))}

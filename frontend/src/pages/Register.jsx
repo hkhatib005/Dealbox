@@ -5,7 +5,7 @@ import { useAuth } from '../AuthContext'
 export default function Register() {
   const { register } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '', invite_code: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -13,8 +13,8 @@ export default function Register() {
     e.preventDefault()
     setLoading(true); setError('')
     try {
-      await register(form.name, form.email, form.password, form.phone)
-      navigate('/dashboard')
+      const user = await register(form.name, form.email, form.password, form.phone, form.invite_code)
+      navigate(user.approved ? '/dashboard' : '/pending')
     } catch(err) {
       setError(err.response?.data?.error || 'Registration failed')
     } finally { setLoading(false) }
@@ -60,11 +60,23 @@ export default function Register() {
               <label>Password</label>
               <input type="password" placeholder="Create a password" value={form.password} onChange={set('password')} required minLength={6} />
             </div>
+            <div className="form-group">
+              <label>Invite Code <span style={{ color: 'var(--text3)', fontWeight: 400 }}>(optional — skip for manual review)</span></label>
+              <input
+                placeholder="e.g. DEALBOX2024"
+                value={form.invite_code}
+                onChange={set('invite_code')}
+                style={{ textTransform: 'uppercase', letterSpacing: '0.08em' }}
+              />
+            </div>
             <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px', marginTop: 8 }} disabled={loading}>
-              {loading ? <><div className="spinner" style={{width:16,height:16}}/> Creating account...</> : 'Create Account — Free'}
+              {loading ? <><div className="spinner" style={{width:16,height:16}}/> Creating account...</> : 'Create Account'}
             </button>
           </form>
-          <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--text3)' }}>
+          <p style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: 'var(--text3)', padding: '12px 16px', background: 'rgba(59,130,246,0.06)', borderRadius: 8, border: '1px solid rgba(59,130,246,0.15)' }}>
+            No invite code? Submit your info and we'll review your application.
+          </p>
+          <p style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: 'var(--text3)' }}>
             Already have an account? <Link to="/login" style={{ color: 'var(--accent)' }}>Sign in</Link>
           </p>
         </div>

@@ -2,19 +2,29 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from database import db
 from models.buybox import BuyBox
+from models.user import User
 from services.matcher import match_properties_to_buybox
 
 buybox_bp = Blueprint('buybox', __name__)
 
 def _list_field(val):
-    """Convert comma-string or list to comma-string for storage."""
     if isinstance(val, list):
         return ','.join(str(v).strip() for v in val)
     return val or ''
 
+def _require_approved():
+    user = User.query.get(int(get_jwt_identity()))
+    if not user:
+        return None, (jsonify({'error': 'User not found'}), 404)
+    if user.role != 'admin' and not user.approved:
+        return None, (jsonify({'error': 'Account pending approval', 'pending': True}), 403)
+    return user, None
+
 @buybox_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_buyboxes():
+    _, err = _require_approved()
+    if err: return err
     user_id = int(get_jwt_identity())
     boxes = BuyBox.query.filter_by(user_id=user_id).order_by(BuyBox.created_at.desc()).all()
     return jsonify([b.to_dict() for b in boxes]), 200
@@ -22,6 +32,8 @@ def get_buyboxes():
 @buybox_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_buybox():
+    _, err = _require_approved()
+    if err: return err
     user_id = int(get_jwt_identity())
     data = request.get_json()
 
@@ -50,6 +62,8 @@ def create_buybox():
 @buybox_bp.route('/<int:box_id>', methods=['PUT'])
 @jwt_required()
 def update_buybox(box_id):
+    _, err = _require_approved()
+    if err: return err
     user_id = int(get_jwt_identity())
     box = BuyBox.query.filter_by(id=box_id, user_id=user_id).first_or_404()
     data = request.get_json()
@@ -74,6 +88,8 @@ def update_buybox(box_id):
 @buybox_bp.route('/<int:box_id>', methods=['DELETE'])
 @jwt_required()
 def delete_buybox(box_id):
+    _, err = _require_approved()
+    if err: return err
     user_id = int(get_jwt_identity())
     box = BuyBox.query.filter_by(id=box_id, user_id=user_id).first_or_404()
     db.session.delete(box)
@@ -83,6 +99,8 @@ def delete_buybox(box_id):
 @buybox_bp.route('/<int:box_id>/matches', methods=['GET'])
 @jwt_required()
 def get_matches(box_id):
+    _, err = _require_approved()
+    if err: return err
     user_id = int(get_jwt_identity())
     box = BuyBox.query.filter_by(id=box_id, user_id=user_id).first_or_404()
     return jsonify([m.to_dict() for m in box.matches]), 200

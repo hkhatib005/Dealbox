@@ -43,6 +43,7 @@ def create_app():
     app.register_blueprint(admin_bp,       url_prefix='/api/admin')
 
     with app.app_context():
+        from models.invite_code import InviteCode  # ensure table is created
         db.create_all()
         _seed_admin()
         _seed_properties()
@@ -52,15 +53,20 @@ def create_app():
 def _seed_admin():
     from models.user import User
     from werkzeug.security import generate_password_hash
-    if not User.query.filter_by(email='admin@dealbox.com').first():
+    admin = User.query.filter_by(email='admin@dealbox.com').first()
+    if not admin:
         db.session.add(User(
             name='Admin',
             email='admin@dealbox.com',
             password=generate_password_hash('admin123'),
-            role='admin'
+            role='admin',
+            approved=True
         ))
         db.session.commit()
         print('✅ Admin seeded: admin@dealbox.com / admin123')
+    elif not admin.approved:
+        admin.approved = True
+        db.session.commit()
 
 def _seed_properties():
     from services.scraper import seed_demo_properties

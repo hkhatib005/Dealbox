@@ -9,6 +9,7 @@ class User(db.Model):
     password   = db.Column(db.String(255), nullable=False)
     role       = db.Column(db.String(20), default='wholesaler')
     phone      = db.Column(db.String(20))
+    approved   = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     buyboxes   = db.relationship('BuyBox', backref='user', lazy=True)
 
@@ -19,5 +20,6 @@ class User(db.Model):
             'email': self.email,
             'role': self.role,
             'phone': self.phone,
+            'approved': self.approved,
             'created_at': self.created_at.isoformat()
         }

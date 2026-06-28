@@ -8,11 +8,20 @@ from services.scraper import run_scrapers
 
 properties_bp = Blueprint('properties', __name__)
 
+def _require_approved():
+    user = User.query.get(int(get_jwt_identity()))
+    if not user:
+        return None, (jsonify({'error': 'User not found'}), 404)
+    if user.role != 'admin' and not user.approved:
+        return None, (jsonify({'error': 'Account pending approval', 'pending': True}), 403)
+    return user, None
+
 @properties_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_properties():
+    user, err = _require_approved()
+    if err: return err
     user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
 
     page      = request.args.get('page', 1, type=int)
     per_page  = request.args.get('per_page', 20, type=int)
@@ -48,6 +57,8 @@ def get_properties():
         'page': page
     }), 200
 
+
+
 @properties_bp.route('/refresh', methods=['POST'])
 @jwt_required()
 def refresh_properties():
@@ -60,8 +71,9 @@ def refresh_properties():
 @properties_bp.route('/stats', methods=['GET'])
 @jwt_required()
 def get_stats():
+    user, err = _require_approved()
+    if err: return err
     user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
 
     if user.role == 'admin':
         by_type = db.session.query(Property.deal_type, db.func.count(Property.id))\
