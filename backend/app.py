@@ -58,7 +58,7 @@ def _seed_admin():
         db.session.add(User(
             name='Admin',
             email='admin@dealbox.com',
-            password=generate_password_hash('admin123'),
+            password=generate_password_hash('admin123', method='pbkdf2:sha256'),
             role='admin',
             approved=True
         ))

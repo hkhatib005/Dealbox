@@ -28,7 +28,7 @@ def register():
     user = User(
         name=data.get('name', 'Wholesaler'),
         email=data['email'],
-        password=generate_password_hash(data['password']),
+        password=generate_password_hash(data['password'], method='pbkdf2:sha256'),
         phone=data.get('phone', ''),
         role='wholesaler',
         approved=auto_approved
